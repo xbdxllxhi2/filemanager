@@ -1,10 +1,13 @@
 <nav class="navbar navbar-dark bg-dark m-2">
-  <span class="navbar-brand mb-0 h1"><a href="#browser"><i class="fas fa-home" style="color:white;"></i></a> File
-    Manager</span>
+  <span class="navbar-brand mb-0 h1"><a href="#browser"><i class="fas fa-home" style="color:white;"></i></a>
+  Al Maktaba</span>
   <span *ngIf="user" class="float-right" style="color: whitesmoke">
-    Welcome {{user.fname + ' ' + user.lname}} (Try <a href="#editor"
-      style="color:white;text-decoration: underline;">CKEditor</a><button type="button" class="btn btn-link"
-      data-toggle="modal" data-target="#exampleModal"><i class="fas fa-info-circle" style="color:white;"></i></button>)
+    Welcome {{ user.fname + ' ' + user.lname }}
+    <!--(Try <a href="#editor"
+                                                        style="color:white;text-decoration: underline;">CKEditor</a>
+    <button
+      type="button" class="btn btn-link"
+      data-toggle="modal" data-target="#exampleModal"><i class="fas fa-info-circle" style="color:white;"></i></button>)-->
     <button class="btn btn-primary btn-sm ml-1" (click)="logout()">Logout</button>
   </span>
 </nav>
@@ -23,7 +26,7 @@
           <strong>CKEditor</strong>. For
           more details refer
           the official page at <a href="https://ckeditor.com/ckeditor-4/"
-            target="_blank">https://ckeditor.com/ckeditor-4/</a></p>
+                                  target="_blank">https://ckeditor.com/ckeditor-4/</a></p>
       </div>
     </div>
   </div>
