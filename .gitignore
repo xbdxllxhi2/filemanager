@@ -37,3 +37,6 @@ HELP.md
 **/yarn-debug.log*
 **/yarn-error.log*
 **/yarn.lock
+
+### Angular ###
+ng-app/.angular
