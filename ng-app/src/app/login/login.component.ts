@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
-import { isNullOrUndefined, isNull } from 'util';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +19,7 @@ export class LoginComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router, private activatedRoute: ActivatedRoute) {
     this.logout = this.activatedRoute.snapshot.queryParams['logout'];
-    if (!isNullOrUndefined(this.logout)) {
+    if (this.logout != null && this.logout != undefined) {
       this.loginError = true;
       if (this.logout == 'false')
         this.loginMessage = 'You have either logged out or your previous session has expired. Please login again to continue!';
@@ -30,7 +29,8 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!isNullOrUndefined(sessionStorage.getItem('loggedInUser')))
+    let value = sessionStorage.getItem('loggedInUser');
+    if (value != null && value != undefined)
       this.router.navigate(['browser']);
   }
 
@@ -45,8 +45,7 @@ export class LoginComponent implements OnInit {
         lname: 'User'
       }));
       this.router.navigate(['browser']);
-    }
-    else {
+    } else {
       this.loginError = true;
     }
   }

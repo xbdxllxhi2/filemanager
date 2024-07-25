@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http'
-import { ActivatedRoute, Router } from '@angular/router';
-import { isNullOrUndefined } from 'util';
-import { environment } from '../../environments/environment';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http'
+import {ActivatedRoute, Router} from '@angular/router';
+import {environment} from '../../environments/environment';
 
 declare var $: any;
 
@@ -35,19 +34,21 @@ export class FileBrowserComponent implements OnInit {
 
   ngOnInit() {
     this.loggedInUser = null;
-    if (!isNullOrUndefined(this.ckEditorFuncNum)) {
+
+
+    let value = sessionStorage.getItem('loggedInUser');
+
+    if (this.ckEditorFuncNum != null || this.ckEditorFuncNum != undefined) {
       this.loading = false;
       this.setContentRoot()
-    }
-    else if (isNullOrUndefined(sessionStorage.getItem('loggedInUser'))) {
+    } else if (value == null || value == undefined) {
       this.router.navigate(['login'], {
         queryParams: {
           'logout': 'false'
         }
       });
       return;
-    }
-    else {
+    } else {
       this.loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
       this.setContentRoot();
     }
@@ -216,7 +217,7 @@ export class FileBrowserComponent implements OnInit {
       responseType: 'blob'
     }).subscribe(resp => {
       this.loading = false;
-      let blob = new Blob([resp], { type: 'application/octet-stream' });
+      let blob = new Blob([resp], {type: 'application/octet-stream'});
       let link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
       link.download = fileView.name;
@@ -236,8 +237,7 @@ export class FileBrowserComponent implements OnInit {
         fileUrl: fileUrl
       }, "*");
       window.close();
-    }
-    else
+    } else
       window.open(this.getFileUrl(fileView), '_blank');
   }
 
@@ -246,8 +246,7 @@ export class FileBrowserComponent implements OnInit {
       if (this.filter.length > 0) {
         let filtered = this.filesCopy.filter(file => file.name.toLowerCase().indexOf(this.filter.toLowerCase()) != -1);
         this.files = filtered;
-      }
-      else
+      } else
         this.files = [...this.filesCopy];
     }
   }
@@ -302,8 +301,7 @@ export class FileBrowserComponent implements OnInit {
     this.alertMessage = '';
     if (confirm("Delete folder " + dir.name + "?")) {
       this.http.get<any>(environment.serviceUrl + "deleteFolder/" + dir.name + "?folderPath=" + this.determineUrlPath(this.selectedDir)).subscribe(resp => this.processResponse(resp))
-    }
-    else {
+    } else {
       this.loading = false;
       return;
     }
@@ -314,8 +312,7 @@ export class FileBrowserComponent implements OnInit {
     if (resp.error) {
       this.alertSuccess = false;
       this.alertMessage = resp.error.message;
-    }
-    else {
+    } else {
       this.alertMessage = resp.message;
       this.onDirClick(this.selectedDir);
     }
