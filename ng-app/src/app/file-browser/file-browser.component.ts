@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http'
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
+import {finalize} from "rxjs";
 
 declare var $: any;
 
@@ -57,26 +58,35 @@ export class FileBrowserComponent implements OnInit {
       this.contentRoot = this.docbase;
     let dirUrl = environment.serviceUrl + "listDirectories?dir=" + (this.contentRoot != this.docbase ? this.contentRoot : '');
     let fileUrl = environment.serviceUrl + "listFiles?dir=" + (this.contentRoot != this.docbase ? this.contentRoot : '');
-    this.http.get<any[]>(dirUrl).subscribe(resp => {
-      this.loading = false;
-      //console.log(resp);
-      if (resp.length > 0) {
-        this.dirs = resp;
-        this.breadcrumbs = [{
-          path: this.contentRoot == this.docbase ? '' : this.docbase,
-          name: this.contentRoot,
-          pathSeparator: resp[0].pathSeparator
-        }];
-        this.selectedDir = this.breadcrumbs[0];
-        this.setDirMap(this.selectedDir);
-        this.setBreadCrumbState();
-      }
-    });
-    this.http.get<any[]>(fileUrl).subscribe(resp => {
-      //console.log(resp);
-      this.files = resp;
-      this.filesCopy = resp;
-    });
+    this.http.get<any[]>(dirUrl)
+      .pipe(finalize(() => {
+        this.loading = false;
+      }))
+      .subscribe({
+        next: resp => {
+          //console.log(resp);
+          if (resp.length > 0) {
+            this.dirs = resp;
+            this.breadcrumbs = [{
+              path: this.contentRoot == this.docbase ? '' : this.docbase,
+              name: this.contentRoot,
+              pathSeparator: resp[0].pathSeparator
+            }];
+            this.selectedDir = this.breadcrumbs[0];
+            this.setDirMap(this.selectedDir);
+            this.setBreadCrumbState();
+          }
+        }
+      });
+
+    this.http.get<any[]>(fileUrl)
+      .subscribe(
+        {
+          next: resp => {
+            this.files = resp;
+            this.filesCopy = resp;
+          }
+        });
   }
 
   setDirMap(dir: any) {
@@ -94,11 +104,15 @@ export class FileBrowserComponent implements OnInit {
     this.setDirMap(dir);
     let dirUrl = environment.serviceUrl + "listDirectories?dir=" + (urlPath != this.contentRoot ? urlPath : '');
     let fileUrl = environment.serviceUrl + "listFiles?dir=" + (urlPath != this.contentRoot ? urlPath : '');
-    this.http.get<any[]>(dirUrl).subscribe(resp => {
-      this.loading = false;
-      //console.log(resp);
-      this.dirs = resp;
-    });
+    this.http.get<any[]>(dirUrl)
+      .pipe(finalize(() => {
+        this.loading = false;
+      }))
+      .subscribe(resp => {
+        //console.log(resp);
+        this.dirs = resp;
+      });
+
     this.http.get<any[]>(fileUrl).subscribe(resp => {
       //console.log(resp);
       this.files = resp;
@@ -156,7 +170,7 @@ export class FileBrowserComponent implements OnInit {
 
   getFileUrl(fileView: any) {
     if (location.host.indexOf('localhost') != -1)
-      return environment.serviceUrl  + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
+      return environment.serviceUrl + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
     else return location.href.substring(0, location.href.indexOf('#')) + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
   }
 
@@ -168,7 +182,14 @@ export class FileBrowserComponent implements OnInit {
     var formData = new FormData();
     formData.append('file', file);
     this.loading = true;
-    this.http.post<any>(environment.serviceUrl + 'uploadFile?dir=' + this.determineUrlPath(this.selectedDir), formData).subscribe(resp => this.processResponse(resp));
+    this.http.post<any>(environment.serviceUrl + 'uploadFile?dir=' + this.determineUrlPath(this.selectedDir), formData)
+      .pipe(finalize(() => {
+        this.loading = false;
+      }))
+      .subscribe({
+        next: resp => this.processResponse(resp)
+      });
+
     setTimeout(() => {
       $('#fileUpload').val('');
     }, 0);
@@ -191,7 +212,15 @@ export class FileBrowserComponent implements OnInit {
       this.alertMessage = '';
       this.alertSuccess = true;
       this.loading = true
-      this.http.get<any>(environment.serviceUrl + "deleteFile?filePath=" + this.determineUrlPath(fileView)).subscribe(resp => this.processResponse(resp));
+      this.http.get<any>
+      (environment.serviceUrl + "deleteFile?filePath=" + this.determineUrlPath(fileView))
+        .pipe(finalize(() => {
+          this.loading = false;
+        }))
+        .subscribe(
+          {
+            next: resp => this.processResponse(resp),
+          });
     }
   }
 
@@ -203,16 +232,21 @@ export class FileBrowserComponent implements OnInit {
     this.loading = true
     this.http.get(environment.serviceUrl + "getFile/" + fileView.name + "?filePath=" + this.determineUrlPath(fileView), {
       responseType: 'blob'
-    }).subscribe(resp => {
-      this.loading = false;
-      let blob = new Blob([resp], {type: 'application/octet-stream'});
-      let link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = fileView.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+    })
+      .pipe(finalize(() => {
+        this.loading = false;
+      }))
+      .subscribe({
+        next: resp => {
+          let blob = new Blob([resp], {type: 'application/octet-stream'});
+          let link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = fileView.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      });
   }
 
   onFileClick(fileView: any, e: Event) {
@@ -279,7 +313,11 @@ export class FileBrowserComponent implements OnInit {
     this.alertMessage = '';
     $('#addFolder').modal('hide');
     $('#collapseAddFolder').collapse('hide');
-    this.http.get<any>(environment.serviceUrl + "addFolder/" + $('#addFolderInput').val() + '?folderPath=' + this.determineUrlPath(this.selectedDir)).subscribe(resp => this.processResponse(resp));
+    this.http.get<any>(environment.serviceUrl + "addFolder/" + $('#addFolderInput').val() + '?folderPath=' + this.determineUrlPath(this.selectedDir))
+      .pipe(finalize(() => {
+        this.loading = false;
+      }))
+      .subscribe(resp => this.processResponse(resp));
   }
 
   deleteFolder(dir: any, e: Event) {
@@ -288,15 +326,22 @@ export class FileBrowserComponent implements OnInit {
     this.alertSuccess = true;
     this.alertMessage = '';
     if (confirm("Delete folder " + dir.name + "?")) {
-      this.http.get<any>(environment.serviceUrl + "deleteFolder/" + dir.name + "?folderPath=" + this.determineUrlPath(this.selectedDir)).subscribe(resp => this.processResponse(resp))
+      this.http
+        .get<any>(environment.serviceUrl + "deleteFolder/" + dir.name + "?folderPath=" + this.determineUrlPath(this.selectedDir))
+        .pipe(finalize(() => {
+          this.loading = false;
+        }))
+        .subscribe({
+          next: resp => this.processResponse(resp)
+        });
     } else {
       this.loading = false;
       return;
     }
   }
 
-  processResponse(resp: any) {
-    this.loading = false;
+  processResponse(resp: any
+  ) {
     if (resp.error) {
       this.alertSuccess = false;
       this.alertMessage = resp.error.message;
