@@ -15,15 +15,15 @@ public interface FileService {
 
 	public List<FileView> listDirectories(Optional<String> dir);
 
-	public List<FileView> listFiles(Optional<String> dir);
+	List<FileView> listFiles(Optional<String> dir);
 
-	public File getFile(String filePath);
+	File getFile(String filePath);
 
-	public AjaxResponse upload(MultipartFile file, Optional<String> dir, Optional<String> type);
+	AjaxResponse upload(MultipartFile file, Optional<String> dir, Optional<String> type);
 
-	public AjaxResponse delete(String filePath);
+	AjaxResponse delete(String filePath);
 	
-	public AjaxResponse addFolder(String folderName, String folderPath);
+	AjaxResponse addFolder(String folderName, String folderPath);
 
-	public AjaxResponse deleteFolder(String folderName, String folderPath);
+	AjaxResponse deleteFolder(String folderName, String folderPath);
 }

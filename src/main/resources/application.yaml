@@ -1,0 +1,40 @@
+#server settings
+server:
+  servlet:
+    contextPath: /filemanager
+    # Max file size.
+    multipart:
+      max-file-size: 1MB
+      # Max request size.
+      max-request-size: 10MB
+  
+  #Content Storage native/cloud
+storage:
+  mode: native
+  
+  #native storage document base
+file:
+  directory: /home/xbdxllxhi/Downloads/maktba/
+  root: assets
+  
+  
+  
+  #Azure properties
+azure:
+  storage:
+    connection-string: DefaultEndpointsProtocol=https;AccountName=cmscontent;AccountKey=bcjeYNYUSH+0LF3+hiZGhcVAYXAeTrn1kMA0VzOcPelpUHBdewA7RLHOpTXj8t8c7C8pt81Ys6TrC7q/CTBYzg==;EndpointSuffix=core.windows.net
+
+
+clavis:
+  keycloak:
+    url: http://localhost:8085
+    realm: clavis-admin
+    resource: admin-cli
+    credentials:
+      secret: EaWMwr4I5mtKVMaW3zoPOCMBSuRBJBJa
+      username: clavis
+      password: clavis
+  kafka:
+    bootstrap-servers: localhost:9092
+    keycloak-topic: keycloak-event
+
