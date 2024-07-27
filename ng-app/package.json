@@ -22,7 +22,7 @@
     "ckeditor4-angular": "^5.1.0",
     "core-js": "^3.37.1",
     "keycloak-angular": "^16.0.1",
-    "keycloak-js": "^25.0.2",
+    "keycloak-js": "^24.0.5",
     "rxjs": "~7.8.1",
     "zone.js": "~0.14.8"
   },

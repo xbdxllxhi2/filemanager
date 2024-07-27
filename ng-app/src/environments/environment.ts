@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  serviceUrl: 'http://localhost:8080/filemanager/'
+  serviceUrl: 'http://localhost:8080/filemanager/secured/'
 };
 
 /*

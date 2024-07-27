@@ -33,21 +33,9 @@ export class FileBrowserComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loggedInUser = null;
-
-
-    let value = sessionStorage.getItem('loggedInUser');
-
     if (this.ckEditorFuncNum != null || this.ckEditorFuncNum != undefined) {
       this.loading = false;
       this.setContentRoot()
-    } else if (value == null || value == undefined) {
-      this.router.navigate(['login'], {
-        queryParams: {
-          'logout': 'false'
-        }
-      });
-      return;
     } else {
       this.loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
       this.setContentRoot();
@@ -168,7 +156,7 @@ export class FileBrowserComponent implements OnInit {
 
   getFileUrl(fileView: any) {
     if (location.host.indexOf('localhost') != -1)
-      return "http://localhost:8080/filemanager/" + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
+      return environment.serviceUrl  + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
     else return location.href.substring(0, location.href.indexOf('#')) + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
   }
 

@@ -1,16 +1,19 @@
+// src/app/app.module.ts
 import {BrowserModule} from '@angular/platform-browser';
 import {APP_INITIALIZER, NgModule} from '@angular/core';
-import {FormsModule} from '@angular/forms'
+import {FormsModule} from '@angular/forms';
+import {HttpClientModule} from '@angular/common/http';
+import {CKEditorModule} from 'ckeditor4-angular';
+import {AppRoutingModule} from './app-routing.module';
+import {KeycloakService} from 'keycloak-angular';
 
 import {AppComponent} from './app.component';
 import {FileBrowserComponent} from './file-browser/file-browser.component';
-import {HttpClientModule} from '@angular/common/http';
-import {CKEditorModule} from 'ckeditor4-angular';
 import {ContentEditorComponent} from './content-editor/content-editor.component';
-import {AppRoutingModule} from './app-routing.module';
 import {LoginComponent} from './login/login.component';
-import {HeaderComponent} from './header/header.component'
-import {KeycloakService} from "keycloak-angular";
+import {HeaderComponent} from './header/header.component';
+import {AuthGuard} from "./AuthGuard.guard";
+import {PageNotFoundComponent} from "./page-not-found/page-not-found.component";
 
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -18,16 +21,17 @@ function initializeKeycloak(keycloak: KeycloakService) {
       config: {
         url: 'http://localhost:8085',
         realm: 'clavis-admin',
-        clientId: 'clavis-backend'
-      },
+        clientId: 'clavis-front'
+      }
+      ,
       initOptions: {
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri:
-          window.location.origin + '/assets/silent-check-sso.html'
+        onLoad: 'login-required',
+        // silentCheckSsoRedirectUri:
+        //   window.location.origin + '/assets/silent-check-sso.html'
+        flow: "standard"
       }
     });
 }
-
 
 @NgModule({
   declarations: [
@@ -45,12 +49,14 @@ function initializeKeycloak(keycloak: KeycloakService) {
     AppRoutingModule
   ],
   providers: [
+    KeycloakService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,
       deps: [KeycloakService],
       multi: true
-    }
+    },
+    AuthGuard
   ],
   bootstrap: [AppComponent]
 })

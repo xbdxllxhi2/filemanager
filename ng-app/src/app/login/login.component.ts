@@ -29,9 +29,9 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    let value = sessionStorage.getItem('loggedInUser');
-    if (value != null && value != undefined)
-      this.router.navigate(['browser']);
+    // let value = sessionStorage.getItem('loggedInUser');
+    // if (value != null && value != undefined)
+    //   this.router.navigate(['browser']);
   }
 
   login(e: Event) {
