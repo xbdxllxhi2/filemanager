@@ -4,15 +4,21 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {finalize} from "rxjs";
 import {KeycloakService} from "keycloak-angular";
+import {UserModel} from "../models/user-model";
+import {AuthzServiceService} from "../services/authz/authz-service.service";
+import {Authorizable} from "../utils/authorizable";
+import {Mapper} from "../utils/mapper";
 
 declare var $: any;
+
+const MODERATOR_ROLE = 'MOD';
 
 @Component({
   selector: 'app-file-browser',
   templateUrl: './file-browser.component.html',
   styleUrls: ['./file-browser.component.css']
 })
-export class FileBrowserComponent implements OnInit {
+export class FileBrowserComponent implements OnInit, Authorizable {
   docbase: string;
   contentRoot: string;
   dirs: any[] = [];
@@ -27,20 +33,24 @@ export class FileBrowserComponent implements OnInit {
   ckEditorFuncNum: string;
   filter: string = ''
   loading: boolean = false;
-  loggedInUser: any;
+  loggedInUser: UserModel;
 
   constructor(private http: HttpClient, private router: Router, private route: ActivatedRoute,
-              private keycloak: KeycloakService) {
+              private keycloak: KeycloakService, private authzService: AuthzServiceService) {
     this.ckEditorFuncNum = route.snapshot.queryParamMap.get('CKEditorFuncNum');
     this.appId = route.snapshot.queryParamMap.get('appId');
   }
 
   ngOnInit() {
+    this.keycloak.loadUserProfile().then(profile => {
+      this.loggedInUser = Mapper.map(profile)
+    })
+      .catch(() => console.error("error during mapping from profile to model"))
+
     if (this.ckEditorFuncNum != null || this.ckEditorFuncNum != undefined) {
       this.loading = false;
       this.setContentRoot()
     } else {
-      this.loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
       this.setContentRoot();
     }
   }
@@ -348,8 +358,7 @@ export class FileBrowserComponent implements OnInit {
     }
   }
 
-  processResponse(resp: any
-  ) {
+  processResponse(resp: any) {
     if (resp.error) {
       this.alertSuccess = false;
       this.alertMessage = resp.error.message;
@@ -375,5 +384,10 @@ export class FileBrowserComponent implements OnInit {
   refresh(e: Event) {
     e.preventDefault();
     this.onDirClick(this.selectedDir);
+  }
+
+
+  isModerator(): boolean {
+    return this.authzService.currentUserHasRoleModerator();
   }
 }

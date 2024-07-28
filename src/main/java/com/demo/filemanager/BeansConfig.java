@@ -17,11 +17,11 @@ public class BeansConfig {
   }
 
 
-  @Bean
-  @ConditionalOnMissingBean
-  JwtDecoder jwtDecoder() {
-    return token -> null;
-  }
+//  @Bean
+//  @ConditionalOnMissingBean
+//  JwtDecoder jwtDecoder() {
+//    return token -> null;
+//  }
 
   @Bean
   @ConditionalOnMissingBean

@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  serviceUrl: 'http://localhost:8080/filemanager/secured/'
+  serviceUrl: 'http://localhost:8080/filemanager/secured/',
+  moderator_role: 'MOD'
 };
 
 /*

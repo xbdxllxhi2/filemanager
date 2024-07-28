@@ -24,6 +24,9 @@ azure:
   storage:
     connection-string: DefaultEndpointsProtocol=https;AccountName=cmscontent;AccountKey=bcjeYNYUSH+0LF3+hiZGhcVAYXAeTrn1kMA0VzOcPelpUHBdewA7RLHOpTXj8t8c7C8pt81Ys6TrC7q/CTBYzg==;EndpointSuffix=core.windows.net
 
+this:
+  roles:
+    moderator-role: ROLE_MOD
 
 clavis:
   security:
@@ -51,7 +54,6 @@ spring:
         jwt:
           issuer-uri: ${clavis.security.keycloak.url}/realms/${clavis.security.keycloak.realm}
           jwk-set-uri: ${clavis.security.keycloak.url}/realms/${clavis.security.keycloak.realm}/protocol/openid-connect/certs
-
 
 logging:
   level:

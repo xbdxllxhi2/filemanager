@@ -32,14 +32,14 @@ public class AdminFileController extends FileController {
   }
 
   @GetMapping("/deleteFolder/{folderName}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole(configModel.roles.moderatorRole)")
   public ResponseEntity<?> deleteFolder(@PathVariable String folderName,
                                         @RequestParam String folderPath) {
     return ResponseEntity.ok(serviceFactory.getInstance().deleteFolder(folderName, folderPath));
   }
 
   @PostMapping("/uploadFile")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole(configModel.roles.moderatorRole)")
   public ResponseEntity<?> UploadFile(MultipartHttpServletRequest request,
                                       @RequestParam Optional<String> dir,
                                       @RequestParam Optional<String> type,
@@ -74,7 +74,7 @@ public class AdminFileController extends FileController {
   }
 
   @GetMapping("/deleteFile")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('${this.roles.moderator-role}')")
   public ResponseEntity<?> deleteFile(@RequestParam String filePath) {
     return ResponseEntity.ok(serviceFactory.getInstance().delete(filePath));
   }
