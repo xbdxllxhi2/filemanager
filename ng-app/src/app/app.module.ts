@@ -56,7 +56,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
       deps: [KeycloakService],
       multi: true
     },
-    AuthGuard
+    // AuthGuard
   ],
   bootstrap: [AppComponent]
 })

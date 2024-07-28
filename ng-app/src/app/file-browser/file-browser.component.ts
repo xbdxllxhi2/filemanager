@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http'
 import {ActivatedRoute, Router} from '@angular/router';
 import {environment} from '../../environments/environment';
 import {finalize} from "rxjs";
+import {KeycloakService} from "keycloak-angular";
 
 declare var $: any;
 
@@ -28,7 +29,8 @@ export class FileBrowserComponent implements OnInit {
   loading: boolean = false;
   loggedInUser: any;
 
-  constructor(private http: HttpClient, private router: Router, private route: ActivatedRoute) {
+  constructor(private http: HttpClient, private router: Router, private route: ActivatedRoute,
+              private keycloak: KeycloakService) {
     this.ckEditorFuncNum = route.snapshot.queryParamMap.get('CKEditorFuncNum');
     this.appId = route.snapshot.queryParamMap.get('appId');
   }
@@ -47,9 +49,15 @@ export class FileBrowserComponent implements OnInit {
     this.loading = true;
     this.http.get(environment.serviceUrl + 'getFileRoot', {
       responseType: 'text'
-    }).subscribe(resp => {
-      this.docbase = resp;
-      this.listFilesAndDirectories();
+    }).subscribe({
+      next: resp => {
+        this.docbase = resp;
+        this.listFilesAndDirectories();
+      }, error: err => {
+        if (err.status == 401) {
+          this.keycloak.logout()
+        }
+      }
     })
   }
 

@@ -49,8 +49,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${clavis.security.keycloak.realm}/realms/${clavis.keycloak.realm}
-          jwk-set-uri: ${clavis.security.keycloak.url}/realms/clavis-admin/protocol/openid-connect/certs
+          issuer-uri: ${clavis.security.keycloak.url}/realms/${clavis.security.keycloak.realm}
+          jwk-set-uri: ${clavis.security.keycloak.url}/realms/${clavis.security.keycloak.realm}/protocol/openid-connect/certs
 
 
 logging:
