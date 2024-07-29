@@ -55,7 +55,8 @@
             <a href="#" (click)="onDirClick(dir, $event)" class="text-secondary" style="text-decoration: none;">
               <i class="far fa-folder"></i> {{ dir.name }}</a>
             <a *ngIf="isModerator()" title="Delete folder {{dir.name}}" class="float-right"
-               href="#" (click)="deleteFolder(dir, $event)"><i class="far fa-trash-alt text-danger"></i></a>
+               href="#" (click)="deleteFolder(dir, $event)">
+              <mat-icon color="warn">folder_delete</mat-icon></a>
           </span>
         </ng-container>
         <ng-container *ngIf="dirs.length==0">
@@ -73,7 +74,28 @@
           </div>
         </div>
         <div *ngFor="let file of files" class="card col-lg-2         col-md-3 col-sm-6 m-1 shadow">
+          <div class="card-header bg-transparent p-0">
+          </div>
           <div class="card-body">
+            <button mat-icon-button
+                    style="position: absolute; top:5px; right:5px;"
+                    [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" yPosition="above" xPosition="after">
+              <button mat-menu-item *ngIf="isModerator()" (click)="onFileDelete(file, $event)">
+                <mat-icon color="warn">delete_outline</mat-icon>
+                <span>Delete</span>
+              </button>
+              <button mat-menu-item (click)="onFileDownload(file, $event)">
+                <mat-icon>arrow_circle_down</mat-icon>
+                <span>Download</span>
+              </button>
+              <button mat-menu-item (click)="copyPath(file,$event)">
+                <mat-icon>content_copy</mat-icon>
+                <span>Copy</span>
+              </button>
+            </mat-menu>
             <!-- <ng-template [ngIf]="validFile(file.name)"> -->
             <div class="text-secondary" (click)="onFileClick(file, $event)"
                  style="text-align: center;">
@@ -100,45 +122,38 @@
               {{file.name}}
             </ng-template> -->
           </div>
-          <!--          TODO move this to menu bar-->
           <div class="card-footer bg-transparent">
-            <!--            <div><a *ngIf="isModerator()" href="#" class="text-secondary float-right" title="Delete"-->
-            <!--                    (click)="onFileDelete(file, $event)"><i-->
-            <!--              class="far fa-trash-alt text-danger"></i></a>-->
-            <!--              <a href="#" class="text-secondary float-right mx-2" title="Download"-->
-            <!--                 (click)="onFileDownload(file, $event)"><i class="fas fa-download text-info"></i></a>-->
-            <!--              <a href="#" class="float-right text-info" title="Copy File Path to Clipboard"-->
-            <!--                 (click)="copyPath(file,$event)"><i class="far fa-clipboard"></i></a></div>-->
-            <!--          </div>-->
-            <div class="text-secondary" [title]="file.name" style="overflow: hidden; white-space: nowrap">
+            <div class="text-secondary" [title]="file.name"
+                 style="text-align:center;overflow: hidden; white-space: nowrap; text-overflow: ellipsis">
               <a> {{ file.name }}</a>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="card-footer" hidden>Folders <i class="fas fa-arrow-right"></i> {{ dirs.length }} Files <i
-      class="fas fa-arrow-right"></i> {{ files.length }}
-    </div>
   </div>
+  <div class="card-footer" hidden>Folders <i class="fas fa-arrow-right"></i> {{ dirs.length }} Files <i
+    class="fas fa-arrow-right"></i> {{ files.length }}
+  </div>
+</div>
 
-  <div id="addFolder" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-body d-flex text-center">
-          <label for="addFolderInput" class="mr-1">Folder Name</label>
-          <input class="form-input" id="addFolderInput" autofocus>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" (click)="addFolder()">Add</button>
-        </div>
+<div id="addFolder" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body d-flex text-center">
+        <label for="addFolderInput" class="mr-1">Folder Name</label>
+        <input class="form-input" id="addFolderInput" autofocus>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="addFolder()">Add</button>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="toast bg-success text-white" data-delay="2000" style="position: fixed; top: 40%; right: 40%;">
-    <div class="toast-body">
-      <strong>Copied to Clipboard!</strong>
-    </div>
+<div class="toast bg-success text-white" data-delay="2000" style="position: fixed; top: 40%; right: 40%;">
+  <div class="toast-body">
+    <strong>Copied to Clipboard!</strong>
   </div>
+</div>

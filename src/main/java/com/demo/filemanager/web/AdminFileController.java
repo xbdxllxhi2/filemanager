@@ -32,7 +32,7 @@ public class AdminFileController extends FileController {
   }
 
   @GetMapping("/deleteFolder/{folderName}")
-  @PreAuthorize("hasRole(configModel.roles.moderatorRole)")
+  @PreAuthorize("hasRole(@configModel.roles.moderatorRole)")
   public ResponseEntity<?> deleteFolder(@PathVariable String folderName,
                                         @RequestParam String folderPath) {
     return ResponseEntity.ok(serviceFactory.getInstance().deleteFolder(folderName, folderPath));

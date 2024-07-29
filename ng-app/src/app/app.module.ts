@@ -12,8 +12,11 @@ import {FileBrowserComponent} from './file-browser/file-browser.component';
 import {ContentEditorComponent} from './content-editor/content-editor.component';
 import {LoginComponent} from './login/login.component';
 import {HeaderComponent} from './header/header.component';
-import {AuthGuard} from "./AuthGuard.guard";
-import {PageNotFoundComponent} from "./page-not-found/page-not-found.component";
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
+import {MatIconModule} from "@angular/material/icon";
+import {MatButtonModule} from "@angular/material/button";
+import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
+
 
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -46,7 +49,13 @@ function initializeKeycloak(keycloak: KeycloakService) {
     HttpClientModule,
     FormsModule,
     CKEditorModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatIconModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenu,
+    MatMenuTrigger,
+    MatMenuItem,
   ],
   providers: [
     KeycloakService,
@@ -56,6 +65,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
       deps: [KeycloakService],
       multi: true
     },
+    provideAnimationsAsync(),
     // AuthGuard
   ],
   bootstrap: [AppComponent]
