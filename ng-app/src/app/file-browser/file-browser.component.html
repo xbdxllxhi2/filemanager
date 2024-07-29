@@ -73,20 +73,25 @@
           </div>
         </div>
         <div *ngFor="let file of files" class="card col-lg-2         col-md-3 col-sm-6 m-1 shadow">
-          <div *ngIf="validImgFile(file.name)" class="card-header bg-transparent">
-            <a href="#" (click)="onFileClick(file, $event)">
-              <img [attr.src]="getFileUrl(file)" style="position: relative;height: 100%;width: 100%; max-height: 150px">
-            </a>
-          </div>
           <div class="card-body">
             <!-- <ng-template [ngIf]="validFile(file.name)"> -->
-            <a href="#" (click)="onFileClick(file, $event)" class="text-secondary">
-              <i class="far fa-2x" [class.fa-file]="!validFile(file.name)"
-                 [class.fa-file-pdf]="file.name.toLowerCase().indexOf('.pdf') != -1"
-                 [class.text-danger]="file.name.toLowerCase().indexOf('.pdf') != -1"
-                 [class.fa-file-image]="validImgFile(file.name)"></i>
-              {{ file.name }}
-            </a>
+            <div class="text-secondary" (click)="onFileClick(file, $event)"
+                 style="text-align: center;">
+              <a *ngIf="validImgFile(file.name)" href="#">
+                <img [attr.src]="getFileUrl(file)"
+                     style="position: relative;height: 100%;width: 100%; max-height: 110px;
+                   border:1.5px solid darkslategray ;border-radius: 5px">
+              </a>
+
+              <a *ngIf="!validImgFile(file.name)" href="#">
+                <i
+                  [class]="!validImgFile(file.name) ? 'far fa-6x fa-file-image': ''"
+                  [class.fa-file]="!validFile(file.name)"
+                  [class.fa-file-pdf]="file.name.toLowerCase().indexOf('.pdf') != -1"
+                  [class.text-danger]="file.name.toLowerCase().indexOf('.pdf') != -1"></i>
+              </a>
+            </div>
+
             <!-- </ng-template> -->
             <!-- <ng-template [ngIf]="!validFile(file.name)">
               <i class="far fa-2x" [class.fa-file]="!validFile(file.name)"
@@ -95,41 +100,45 @@
               {{file.name}}
             </ng-template> -->
           </div>
+          <!--          TODO move this to menu bar-->
           <div class="card-footer bg-transparent">
-            <a *ngIf="isModerator()" href="#" class="text-secondary float-right" title="Delete"
-               (click)="onFileDelete(file, $event)"><i
-              class="far fa-trash-alt text-danger"></i></a>
-            <a href="#" class="text-secondary float-right mx-2" title="Download"
-               (click)="onFileDownload(file, $event)"><i class="fas fa-download text-info"></i></a>
-            <a href="#" class="float-right text-info" title="Copy File Path to Clipboard"
-               (click)="copyPath(file,$event)"><i class="far fa-clipboard"></i></a>
+            <!--            <div><a *ngIf="isModerator()" href="#" class="text-secondary float-right" title="Delete"-->
+            <!--                    (click)="onFileDelete(file, $event)"><i-->
+            <!--              class="far fa-trash-alt text-danger"></i></a>-->
+            <!--              <a href="#" class="text-secondary float-right mx-2" title="Download"-->
+            <!--                 (click)="onFileDownload(file, $event)"><i class="fas fa-download text-info"></i></a>-->
+            <!--              <a href="#" class="float-right text-info" title="Copy File Path to Clipboard"-->
+            <!--                 (click)="copyPath(file,$event)"><i class="far fa-clipboard"></i></a></div>-->
+            <!--          </div>-->
+            <div class="text-secondary" [title]="file.name" style="overflow: hidden; white-space: nowrap">
+              <a> {{ file.name }}</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="card-footer" hidden>Folders <i class="fas fa-arrow-right"></i> {{ dirs.length }} Files <i
+      class="fas fa-arrow-right"></i> {{ files.length }}
+    </div>
   </div>
-  <div class="card-footer" hidden>Folders <i class="fas fa-arrow-right"></i> {{ dirs.length }} Files <i
-    class="fas fa-arrow-right"></i> {{ files.length }}
-  </div>
-</div>
 
-<div id="addFolder" class="modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body d-flex text-center">
-        <label for="addFolderInput" class="mr-1">Folder Name</label>
-        <input class="form-input" id="addFolderInput" autofocus>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" (click)="addFolder()">Add</button>
+  <div id="addFolder" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body d-flex text-center">
+          <label for="addFolderInput" class="mr-1">Folder Name</label>
+          <input class="form-input" id="addFolderInput" autofocus>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="addFolder()">Add</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="toast bg-success text-white" data-delay="2000" style="position: fixed; top: 40%; right: 40%;">
-  <div class="toast-body">
-    <strong>Copied to Clipboard!</strong>
+  <div class="toast bg-success text-white" data-delay="2000" style="position: fixed; top: 40%; right: 40%;">
+    <div class="toast-body">
+      <strong>Copied to Clipboard!</strong>
+    </div>
   </div>
-</div>
