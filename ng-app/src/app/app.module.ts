@@ -16,6 +16,7 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -56,6 +57,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     MatMenu,
     MatMenuTrigger,
     MatMenuItem,
+    MatProgressSpinner,
   ],
   providers: [
     KeycloakService,

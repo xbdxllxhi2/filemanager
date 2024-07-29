@@ -8,6 +8,7 @@ import {UserModel} from "../models/user-model";
 import {AuthzServiceService} from "../services/authz/authz-service.service";
 import {Authorizable} from "../utils/authorizable";
 import {Mapper} from "../utils/mapper";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 declare var $: any;
 
@@ -36,7 +37,8 @@ export class FileBrowserComponent implements OnInit, Authorizable {
   loggedInUser: UserModel;
 
   constructor(private http: HttpClient, private router: Router, private route: ActivatedRoute,
-              private keycloak: KeycloakService, private authzService: AuthzServiceService) {
+              private keycloak: KeycloakService, private authzService: AuthzServiceService,
+              private _snackBar: MatSnackBar) {
     this.ckEditorFuncNum = route.snapshot.queryParamMap.get('CKEditorFuncNum');
     this.appId = route.snapshot.queryParamMap.get('appId');
   }
@@ -366,19 +368,16 @@ export class FileBrowserComponent implements OnInit, Authorizable {
       this.alertMessage = resp.message;
       this.onDirClick(this.selectedDir);
     }
-    $('.alert').show();
-    setTimeout(() => {
-      $('.alert').hide();
-    }, 3000);
+    this.openSnackBar(this.alertMessage, "");
   }
 
   copyPath(file: any, e: Event) {
     e.preventDefault();
-    $('body').append("<input id='inputFileUrl' value=" + this.getFileUrl(file) + ">");
-    $('#inputFileUrl').select();
-    document.execCommand("copy");
-    $('.toast').toast('show');
-    $('#inputFileUrl').remove();
+    navigator.clipboard.writeText(file.name)
+      .then(() => {
+        this.openSnackBar("File name copied to clipboard", "OK")
+      })
+      .catch(err => this.openSnackBar('Could not copy to clipboard!', "error"));
   }
 
   refresh(e: Event) {
@@ -389,5 +388,9 @@ export class FileBrowserComponent implements OnInit, Authorizable {
 
   isModerator(): boolean {
     return this.authzService.currentUserHasRoleModerator();
+  }
+
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action, {duration: 3000})
   }
 }

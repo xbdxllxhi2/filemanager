@@ -4,7 +4,8 @@
      style="display: none;">
   <strong>{{ alertSuccess ? 'Success!' : 'Error!' }} </strong> {{ alertMessage }}
 </div>
-<div *ngIf="loading"><i class="fas fa-4x fa-spin fa-circle-notch" style="position: absolute;top:30%;left:50%;"></i>
+<div *ngIf="loading" style="position: absolute;top:30%;left:50%;align-content: center">
+  <mat-spinner diameter="60"></mat-spinner>
 </div>
 <div *ngIf="!loading" class="card m-2">
   <div class="card-header bg-transparent text-center">
@@ -74,8 +75,6 @@
           </div>
         </div>
         <div *ngFor="let file of files" class="card col-lg-2         col-md-3 col-sm-6 m-1 shadow">
-          <div class="card-header bg-transparent p-0">
-          </div>
           <div class="card-body">
             <button mat-icon-button
                     style="position: absolute; top:5px; right:5px;"
@@ -153,7 +152,7 @@
 </div>
 
 <div class="toast bg-success text-white" data-delay="2000" style="position: fixed; top: 40%; right: 40%;">
-  <div class="toast-body">
+  <div class="toast-body" >
     <strong>Copied to Clipboard!</strong>
   </div>
 </div>
