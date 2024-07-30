@@ -2,10 +2,10 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {CKEditorModule} from 'ckeditor4-angular';
 import {AppRoutingModule} from './app-routing.module';
-import {KeycloakService} from 'keycloak-angular';
+import {KeycloakBearerInterceptor, KeycloakService} from 'keycloak-angular';
 
 import {AppComponent} from './app.component';
 import {FileBrowserComponent} from './file-browser/file-browser.component';
@@ -17,6 +17,7 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
 import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import {AuthGuard} from "./AuthGuard.guard";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -29,10 +30,11 @@ function initializeKeycloak(keycloak: KeycloakService) {
       }
       ,
       initOptions: {
-        onLoad: 'login-required',
-        // silentCheckSsoRedirectUri:
-        //   window.location.origin + '/assets/silent-check-sso.html'
-        flow: "standard"
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri:
+          window.location.origin + '/assets/silent-check-sso.html',
+        enableLogging: true
+        // flow: "standard"
       }
     });
 }
@@ -62,13 +64,18 @@ function initializeKeycloak(keycloak: KeycloakService) {
   providers: [
     KeycloakService,
     {
+      provide: HTTP_INTERCEPTORS,
+      useClass: KeycloakBearerInterceptor,
+      multi: true
+    },
+    {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,
       deps: [KeycloakService],
       multi: true
     },
     provideAnimationsAsync(),
-    // AuthGuard
+    AuthGuard
   ],
   bootstrap: [AppComponent]
 })

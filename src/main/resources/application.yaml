@@ -32,7 +32,9 @@ clavis:
   security:
     api-config:
       whitelisted-urls:
-        - /*
+        - /swagger-ui/*
+        - /v3/api-docs/*
+        - /error/*
     keycloak:
       url: http://localhost:8085
       realm: clavis-admin
