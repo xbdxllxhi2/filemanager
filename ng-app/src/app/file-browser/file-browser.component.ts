@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http'
 import {ActivatedRoute, Router} from '@angular/router';
-import {environment} from '../../environments/environment';
 import {finalize} from "rxjs";
 import {KeycloakService} from "keycloak-angular";
 import {UserModel} from "../models/user-model";
@@ -9,6 +8,7 @@ import {AuthzServiceService} from "../services/authz/authz-service.service";
 import {Authorizable} from "../utils/authorizable";
 import {Mapper} from "../utils/mapper";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {API_ENDPOINTS} from "../endpoints"
 
 declare var $: any;
 
@@ -59,7 +59,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
 
   setContentRoot() {
     this.loading = true;
-    this.http.get(environment.serviceUrl + 'getFileRoot', {
+    this.http.get(API_ENDPOINTS.FILES.GET_FILE_ROOT, {
       responseType: 'text'
     }).subscribe({
       next: resp => {
@@ -76,8 +76,8 @@ export class FileBrowserComponent implements OnInit, Authorizable {
   listFilesAndDirectories() {
     if (!this.contentRoot)
       this.contentRoot = this.docbase;
-    let dirUrl = environment.serviceUrl + "listDirectories?dir=" + (this.contentRoot != this.docbase ? this.contentRoot : '');
-    let fileUrl = environment.serviceUrl + "listFiles?dir=" + (this.contentRoot != this.docbase ? this.contentRoot : '');
+    let dirUrl = API_ENDPOINTS.FILES.GET_DIRS(this.contentRoot != this.docbase ? this.contentRoot : '');
+    let fileUrl = API_ENDPOINTS.FILES.GET_FILES(this.contentRoot != this.docbase ? this.contentRoot : '');
     this.http.get<any[]>(dirUrl)
       .pipe(finalize(() => {
         this.loading = false;
@@ -122,8 +122,8 @@ export class FileBrowserComponent implements OnInit, Authorizable {
       e.preventDefault();
     let urlPath = this.determineUrlPath(dir);
     this.setDirMap(dir);
-    let dirUrl = environment.serviceUrl + "listDirectories?dir=" + (urlPath != this.contentRoot ? urlPath : '');
-    let fileUrl = environment.serviceUrl + "listFiles?dir=" + (urlPath != this.contentRoot ? urlPath : '');
+    let dirUrl = API_ENDPOINTS.FILES.GET_DIRS(urlPath != this.contentRoot ? urlPath : '');
+    let fileUrl = API_ENDPOINTS.FILES.GET_FILES(urlPath != this.contentRoot ? urlPath : '');
     this.http.get<any[]>(dirUrl)
       .pipe(finalize(() => {
         this.loading = false;
@@ -189,9 +189,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
   }
 
   getFileUrl(fileView: any) {
-    if (location.host.indexOf('localhost') != -1)
-      return environment.serviceUrl + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
-    else return location.href.substring(0, location.href.indexOf('#')) + "getFile/" + encodeURIComponent(fileView.name) + "?filePath=" + this.determineUrlPath(fileView);
+    return API_ENDPOINTS.FILES.GET_FILE(encodeURIComponent(fileView.name), this.determineUrlPath(fileView));
   }
 
   uploadFile() {
@@ -202,7 +200,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
     var formData = new FormData();
     formData.append('file', file);
     this.loading = true;
-    this.http.post<any>(environment.serviceUrl + 'uploadFile?dir=' + this.determineUrlPath(this.selectedDir), formData)
+    this.http.post<any>(API_ENDPOINTS.FILES.UPLOAD_FILE(this.determineUrlPath(this.selectedDir)), formData)
       .pipe(finalize(() => {
         this.loading = false;
       }))
@@ -232,8 +230,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
       this.alertMessage = '';
       this.alertSuccess = true;
       this.loading = true
-      this.http.get<any>
-      (environment.serviceUrl + "deleteFile?filePath=" + this.determineUrlPath(fileView))
+      this.http.get<any>(API_ENDPOINTS.FILES.DELETE_FILE(this.determineUrlPath(fileView)))
         .pipe(finalize(() => {
           this.loading = false;
         }))
@@ -250,7 +247,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
     this.alertSuccess = true;
     this.alertMessage = '';
     this.loading = true
-    this.http.get(environment.serviceUrl + "getFile/" + fileView.name + "?filePath=" + this.determineUrlPath(fileView), {
+    this.http.get(API_ENDPOINTS.FILES.GET_FILE(fileView.name, this.determineUrlPath(fileView)), {
       responseType: 'blob'
     })
       .pipe(finalize(() => {
@@ -280,7 +277,17 @@ export class FileBrowserComponent implements OnInit, Authorizable {
       }, "*");
       window.close();
     } else
-      window.open(this.getFileUrl(fileView), '_blank');
+      this.http.get(this.getFileUrl(fileView), {
+        responseType: 'blob'
+      })
+        .subscribe(file => {
+          const contentType = file.type || 'application/pdf'; // Fallback to 'application/pdf' if undefined
+          let blob = new Blob([file], {type: contentType});
+          const blobUrl = window.URL.createObjectURL(blob);
+
+          window.open(blobUrl, '_blank');
+          setTimeout(() => window.URL.revokeObjectURL(blobUrl), 10000);
+        });
   }
 
   onFilter(e: Event) {
@@ -333,7 +340,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
     this.alertMessage = '';
     $('#addFolder').modal('hide');
     $('#collapseAddFolder').collapse('hide');
-    this.http.get<any>(environment.serviceUrl + "addFolder/" + $('#addFolderInput').val() + '?folderPath=' + this.determineUrlPath(this.selectedDir))
+    this.http.get<any>(API_ENDPOINTS.FOLDER.ADD_FOLDER($('#addFolderInput').val(), this.determineUrlPath(this.selectedDir)))
       .pipe(finalize(() => {
         this.loading = false;
       }))
@@ -347,7 +354,7 @@ export class FileBrowserComponent implements OnInit, Authorizable {
     this.alertMessage = '';
     if (confirm("Delete folder " + dir.name + "?")) {
       this.http
-        .get<any>(environment.serviceUrl + "deleteFolder/" + dir.name + "?folderPath=" + this.determineUrlPath(this.selectedDir))
+        .get<any>(API_ENDPOINTS.FOLDER.DELETE_FOLDER(dir.name, this.determineUrlPath(this.selectedDir)))
         .pipe(finalize(() => {
           this.loading = false;
         }))

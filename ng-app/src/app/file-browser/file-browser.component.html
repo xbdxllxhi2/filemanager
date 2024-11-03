@@ -1,5 +1,5 @@
 <app-header [user]="loggedInUser"></app-header>
-<input *ngIf="isModerator()" type="file" id="fileUpload" (change)="uploadFile()" hidden>
+<input *ngIf="isModerator()" type="file" id="fileUpload" (change)="uploadFile()">
 <div class="alert m-2" [class.alert-success]="alertSuccess" [class.alert-danger]="!alertSuccess" role="alert"
      style="display: none;">
   <strong>{{ alertSuccess ? 'Success!' : 'Error!' }} </strong> {{ alertMessage }}
@@ -152,7 +152,7 @@
 </div>
 
 <div class="toast bg-success text-white" data-delay="2000" style="position: fixed; top: 40%; right: 40%;">
-  <div class="toast-body" >
+  <div class="toast-body">
     <strong>Copied to Clipboard!</strong>
   </div>
 </div>

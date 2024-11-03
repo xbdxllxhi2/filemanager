@@ -11,6 +11,7 @@ export class AuthzServiceService {
   }
 
   currentUserHasRoleModerator(): boolean {
+    debugger;
     return this.keycloak.isUserInRole(environment.moderator_role);
   }
 }
