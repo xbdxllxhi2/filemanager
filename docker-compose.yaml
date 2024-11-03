@@ -1,0 +1,101 @@
+services:
+  keycloak:
+    depends_on:
+      keycloak_db:
+        condition: service_healthy
+    image: bitnami/keycloak:24.0.5
+    container_name: keycloak
+    ports:
+      - 8085:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_HTTP_PORT: 8080
+      KEYCLOAK_DATABASE_NAME: keycloak
+      KEYCLOAK_DATABASE_USER: keycloak
+      KEYCLOAK_DATABASE_PASSWORD: keycloak
+      KEYCLOAK_DATABASE_HOST: keycloak_db
+      KEYCLOAK_ENABLE_HEALTH_ENDPOINTS: true
+      KC_SPI_EVENTS_LISTENER_CLAVIS_LISTENER_BOOTSRAPSERVERS: kafka:9092
+      KC_SPI_EVENTS_LISTENER_CLAVIS_LISTENER_TOPICNAME: keycloak-event
+    profiles:
+      - keycloak
+    volumes:
+      - ./providers:/opt/bitnami/keycloak/providers
+    networks:
+      - keycloak_network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --head -fsS http://localhost:8080/health/ready || exit 1" ]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  keycloak_db:
+    image: postgres:16-alpine
+    container_name: keycloak_db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: keycloak
+    profiles:
+      - keycloak
+    networks:
+      - keycloak_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U keycloak" ]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  terraform_keycloak:
+    image: hashicorp/terraform:1.8
+    container_name: terraform_keycloak
+    working_dir: /terraform
+    entrypoint: [ "/bin/sh", "-c" ]
+    environment:
+      TF_VAR_keycloak_url: http://keycloak:8080
+      TF_VAR_backend_url: http://localhost:8090/api
+    command:
+      - |
+        terraform init
+        terraform apply -auto-approve
+    profiles:
+      - keycloak
+    volumes:
+      - ./terraform:/terraform
+    networks:
+      - keycloak_network
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - 8086:2181
+    networks:
+      - keycloak_network
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - 9092:9092
+    volumes:
+      - ./scripts/kafka/createtopic.sh:/createtopic.sh
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      #      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+    #    command: [ "sh", "-c","./createtopic.sh","kc-user-event" ]
+    depends_on:
+      - zookeeper
+    networks:
+      - keycloak_network
+
+networks:
+  keycloak_network:
+    driver: bridge
